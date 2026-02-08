@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import type { Expense } from '../types/expense'
 import ExpenseItem from './ExpenseItem'
 
@@ -8,7 +8,7 @@ interface ExpenseListProps {
   onDelete: (id: string) => void
 }
 
-export default function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
+export default memo(function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   if (expenses.length === 0) {
@@ -33,7 +33,7 @@ export default function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListP
           </span>
         )}
       </button>
-      <div className="space-y-2">
+      <div className="space-y-2 transform-gpu">
         {displayedExpenses.map((expense) => (
           <ExpenseItem
             key={expense.id}
@@ -45,4 +45,4 @@ export default function ExpenseList({ expenses, onEdit, onDelete }: ExpenseListP
       </div>
     </div>
   )
-}
+})

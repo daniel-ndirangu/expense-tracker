@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react'
 import type { Expense } from '../types/expense'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatExpenseDate } from '../utils/dateUtils'
@@ -9,11 +10,19 @@ interface ExpenseItemProps {
   onDelete: (id: string) => void
 }
 
-export default function ExpenseItem({ expense, onEdit, onDelete }: ExpenseItemProps) {
+export default memo(function ExpenseItem({ expense, onEdit, onDelete }: ExpenseItemProps) {
   const color = getCategoryColor(expense.category)
 
+  const handleEdit = useCallback(() => {
+    onEdit(expense)
+  }, [onEdit, expense])
+
+  const handleDelete = useCallback(() => {
+    onDelete(expense.id)
+  }, [onDelete, expense.id])
+
   return (
-    <div className="bg-[#1a1a1a] rounded-xl p-4 flex items-center gap-4">
+    <div className="bg-[#1a1a1a] rounded-xl p-4 flex items-center gap-4 contain-layout">
       <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center flex-shrink-0`}>
         <span className="text-white text-sm font-medium">
           {expense.category.charAt(0).toUpperCase()}
@@ -31,8 +40,8 @@ export default function ExpenseItem({ expense, onEdit, onDelete }: ExpenseItemPr
         </span>
         <div className="flex gap-1">
           <button
-            onClick={() => onEdit(expense)}
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+            onClick={handleEdit}
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white"
             aria-label="Edit expense"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,8 +49,8 @@ export default function ExpenseItem({ expense, onEdit, onDelete }: ExpenseItemPr
             </svg>
           </button>
           <button
-            onClick={() => onDelete(expense.id)}
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-400 transition-colors"
+            onClick={handleDelete}
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-400"
             aria-label="Delete expense"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,4 +61,4 @@ export default function ExpenseItem({ expense, onEdit, onDelete }: ExpenseItemPr
       </div>
     </div>
   )
-}
+})

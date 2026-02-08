@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useExpenses } from '../context/ExpenseContext'
 import { getDateRange } from '../utils/dateUtils'
 import { filterByDateRange, calculateTotal, aggregateByCategory, sortExpensesByDate } from '../utils/aggregations'
@@ -33,17 +33,17 @@ export default function Dashboard() {
   const total = calculateTotal(filteredExpenses)
   const categoryTotals = aggregateByCategory(filteredExpenses)
 
-  const handleAdd = () => {
+  const handleAdd = useCallback(() => {
     setEditingExpense(null)
     setIsFormOpen(true)
-  }
+  }, [])
 
-  const handleEdit = (expense: Expense) => {
+  const handleEdit = useCallback((expense: Expense) => {
     setEditingExpense(expense)
     setIsFormOpen(true)
-  }
+  }, [])
 
-  const handleSave = (data: Omit<Expense, 'id' | 'createdAt'>) => {
+  const handleSave = useCallback((data: Omit<Expense, 'id' | 'createdAt'>) => {
     if (editingExpense) {
       updateExpense({ ...editingExpense, ...data })
     } else {
@@ -51,21 +51,21 @@ export default function Dashboard() {
     }
     setIsFormOpen(false)
     setEditingExpense(null)
-  }
+  }, [editingExpense, updateExpense, addExpense])
 
-  const handleDelete = (id: string) => {
+  const handleDelete = useCallback((id: string) => {
     deleteExpense(id)
-  }
+  }, [deleteExpense])
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsFormOpen(false)
     setEditingExpense(null)
-  }
+  }, [])
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 overflow-y-auto overscroll-y-contain">
       {/* Header */}
-      <header className="sticky top-0 bg-[#111111] z-10 px-4 pt-4 pb-2">
+      <header className="sticky top-0 bg-[#111111] z-10 px-4 pt-4 pb-2 transform-gpu">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">Expenses</h1>
           <button

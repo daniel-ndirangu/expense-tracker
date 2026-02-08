@@ -6,6 +6,7 @@
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -16,8 +17,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #111111;
   color: #ffffff;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Layout containment for list items */
+.contain-layout {
+  contain: layout style;
 }
