@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useExpenses } from '../context/ExpenseContext'
 import { getDateRange } from '../utils/dateUtils'
 import { filterByDateRange, calculateTotal, aggregateByCategory, sortExpensesByDate } from '../utils/aggregations'
@@ -27,11 +27,31 @@ export default function Dashboard() {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [showExport, setShowExport] = useState(false)
 
-  const dateRange = getDateRange(selectedPeriod, selectedDate)
-  const filteredExpenses = filterByDateRange(expenses, dateRange)
-  const sortedExpenses = sortExpensesByDate(filteredExpenses)
-  const total = calculateTotal(filteredExpenses)
-  const categoryTotals = aggregateByCategory(filteredExpenses)
+  // Memoize computed values to prevent unnecessary re-renders
+  const dateRange = useMemo(
+    () => getDateRange(selectedPeriod, selectedDate),
+    [selectedPeriod, selectedDate]
+  )
+
+  const filteredExpenses = useMemo(
+    () => filterByDateRange(expenses, dateRange),
+    [expenses, dateRange]
+  )
+
+  const sortedExpenses = useMemo(
+    () => sortExpensesByDate(filteredExpenses),
+    [filteredExpenses]
+  )
+
+  const total = useMemo(
+    () => calculateTotal(filteredExpenses),
+    [filteredExpenses]
+  )
+
+  const categoryTotals = useMemo(
+    () => aggregateByCategory(filteredExpenses),
+    [filteredExpenses]
+  )
 
   const handleAdd = useCallback(() => {
     setEditingExpense(null)
@@ -62,15 +82,23 @@ export default function Dashboard() {
     setEditingExpense(null)
   }, [])
 
+  const handleToggleExport = useCallback(() => {
+    setShowExport(prev => !prev)
+  }, [])
+
+  const handleCloseExport = useCallback(() => {
+    setShowExport(false)
+  }, [])
+
   return (
-    <div className="min-h-screen pb-24 overflow-y-auto overscroll-y-contain">
+    <div className="min-h-screen pb-24">
       {/* Header */}
-      <header className="sticky top-0 bg-[#111111] z-10 px-4 pt-4 pb-2 transform-gpu">
+      <header className="sticky top-0 bg-[#111111] z-10 px-4 pt-4 pb-2 transform-gpu will-change-transform">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">Expenses</h1>
           <button
-            onClick={() => setShowExport(!showExport)}
-            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+            onClick={handleToggleExport}
+            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white"
             aria-label="Settings"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,9 +110,9 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="px-4 space-y-6 pt-4">
+      <main className="px-4 pt-4 flex flex-col gap-6">
         {showExport && (
-          <ExportImport onClose={() => setShowExport(false)} />
+          <ExportImport onClose={handleCloseExport} />
         )}
 
         <TotalCard

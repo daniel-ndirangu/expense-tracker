@@ -19,7 +19,7 @@ export default memo(function ExpenseList({ expenses, onEdit, onDelete }: Expense
   const hasMore = expenses.length > 3
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex items-center justify-between w-full text-left"
@@ -33,7 +33,7 @@ export default memo(function ExpenseList({ expenses, onEdit, onDelete }: Expense
           </span>
         )}
       </button>
-      <div className="space-y-2 transform-gpu">
+      <div className="flex flex-col gap-2 transform-gpu">
         {displayedExpenses.map((expense) => (
           <ExpenseItem
             key={expense.id}

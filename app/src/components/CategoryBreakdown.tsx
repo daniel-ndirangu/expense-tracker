@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { formatCurrency } from '../utils/formatCurrency'
 import { getCategoryColor } from '../utils/categoryColors'
 import type { CategoryTotal } from '../utils/aggregations'
@@ -6,7 +7,7 @@ interface CategoryBreakdownProps {
   categories: CategoryTotal[]
 }
 
-export default function CategoryBreakdown({ categories }: CategoryBreakdownProps) {
+export default memo(function CategoryBreakdown({ categories }: CategoryBreakdownProps) {
   if (categories.length === 0) {
     return (
       <div className="bg-[#1a1a1a] rounded-2xl p-6 text-center">
@@ -16,12 +17,12 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {categories.map((cat) => {
         const color = getCategoryColor(cat.category)
 
         return (
-          <div key={cat.category} className="bg-[#1a1a1a] rounded-xl p-4">
+          <div key={cat.category} className="bg-[#1a1a1a] rounded-xl p-4 contain-layout">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
                 <div className={`w-3 h-3 rounded-full ${color}`} />
@@ -32,7 +33,7 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
             <div className="flex items-center gap-3">
               <div className="flex-1 h-2 bg-[#2a2a2a] rounded-full overflow-hidden">
                 <div
-                  className={`h-full ${color} transition-all duration-300`}
+                  className={`h-full ${color}`}
                   style={{ width: `${cat.percentage}%` }}
                 />
               </div>
@@ -45,4 +46,4 @@ export default function CategoryBreakdown({ categories }: CategoryBreakdownProps
       })}
     </div>
   )
-}
+})
