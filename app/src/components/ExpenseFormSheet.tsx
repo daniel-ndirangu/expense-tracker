@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { Expense } from '../types/expense'
 import { useExpenses } from '../context/ExpenseContext'
 import { getTodayISO } from '../utils/dateUtils'
@@ -14,6 +14,7 @@ const ADD_NEW_VALUE = '__add_new__'
 
 export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: ExpenseFormSheetProps) {
   const { categories, addCategory } = useExpenses()
+  const sheetRef = useRef<HTMLDivElement>(null)
 
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -22,25 +23,19 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
 
-  // Lock body scroll when modal is open
+  // Lock the scroll container when modal is open
   useEffect(() => {
     if (isOpen) {
-      // Save current scroll position and lock
-      const scrollY = window.scrollY
-      document.body.style.position = 'fixed'
-      document.body.style.top = `-${scrollY}px`
-      document.body.style.left = '0'
-      document.body.style.right = '0'
-      document.body.style.overflow = 'hidden'
+      // Find the scroll container (parent with overflow)
+      const scrollContainer = document.querySelector('.scroll-container') as HTMLElement
+      if (scrollContainer) {
+        scrollContainer.style.overflow = 'hidden'
+      }
 
       return () => {
-        // Restore scroll position
-        document.body.style.position = ''
-        document.body.style.top = ''
-        document.body.style.left = ''
-        document.body.style.right = ''
-        document.body.style.overflow = ''
-        window.scrollTo(0, scrollY)
+        if (scrollContainer) {
+          scrollContainer.style.overflow = ''
+        }
       }
     }
   }, [isOpen])
@@ -99,11 +94,6 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
     })
   }
 
-  // Prevent touch events from propagating to background
-  const handleTouchMove = (e: React.TouchEvent) => {
-    e.stopPropagation()
-  }
-
   const isValid = amount && parseFloat(amount) > 0 && category
 
   if (!isOpen) {
@@ -111,10 +101,7 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 touch-none"
-      onTouchMove={handleTouchMove}
-    >
+    <div className="fixed inset-0 z-50">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60"
@@ -123,17 +110,18 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
 
       {/* Sheet */}
       <div
-        className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl animate-slide-up flex flex-col touch-auto"
-        style={{ maxHeight: '90dvh' }}
+        ref={sheetRef}
+        className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl animate-slide-up flex flex-col"
+        style={{ maxHeight: '85vh' }}
       >
-        {/* Drag handle - fixed */}
+        {/* Drag handle */}
         <div className="flex-shrink-0 pt-3 pb-2">
           <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto" />
         </div>
 
         {/* Scrollable content */}
         <div
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-6"
+          className="flex-1 overflow-y-auto px-6 pb-6"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           <h2 className="text-xl font-semibold text-white mb-6">
@@ -243,8 +231,8 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
               />
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 pt-2 pb-safe">
+            {/* Actions - sticky at bottom */}
+            <div className="flex gap-3 pt-4 pb-2">
               <button
                 type="button"
                 onClick={onClose}
@@ -266,18 +254,11 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
 
       <style>{`
         @keyframes slide-up {
-          from {
-            transform: translateY(100%);
-          }
-          to {
-            transform: translateY(0);
-          }
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
         }
         .animate-slide-up {
-          animation: slide-up 0.3s ease-out;
-        }
-        .pb-safe {
-          padding-bottom: env(safe-area-inset-bottom, 0);
+          animation: slide-up 0.25s ease-out;
         }
       `}</style>
     </div>
