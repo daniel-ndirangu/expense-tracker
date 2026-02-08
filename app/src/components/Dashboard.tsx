@@ -91,14 +91,14 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="min-h-screen pb-24">
-      {/* Header */}
-      <header className="sticky top-0 bg-[#111111] z-10 px-4 pt-4 pb-2 transform-gpu will-change-transform">
+    <div className="scroll-container bg-[#111111]">
+      {/* Fixed Header */}
+      <header className="sticky top-0 z-10 bg-[#111111] px-4 pt-4 pb-2">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-semibold text-white">Expenses</h1>
           <button
             onClick={handleToggleExport}
-            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white"
+            className="w-10 h-10 flex items-center justify-center text-gray-400 active:text-white"
             aria-label="Settings"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,8 +109,8 @@ export default function Dashboard() {
         <PeriodSelector value={selectedPeriod} onChange={setPeriod} />
       </header>
 
-      {/* Main Content */}
-      <main className="px-4 pt-4 flex flex-col gap-6">
+      {/* Scrollable Content */}
+      <main className="px-4 pt-4 pb-24 flex flex-col gap-6">
         {showExport && (
           <ExportImport onClose={handleCloseExport} />
         )}
@@ -134,7 +134,7 @@ export default function Dashboard() {
         />
       </main>
 
-      {/* FAB */}
+      {/* FAB - Fixed position */}
       <AddExpenseButton onClick={handleAdd} />
 
       {/* Form Sheet */}

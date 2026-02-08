@@ -4,9 +4,7 @@ import Dashboard from './components/Dashboard'
 function App() {
   return (
     <ExpenseProvider>
-      <div className="min-h-screen bg-[#111111]">
-        <Dashboard />
-      </div>
+      <Dashboard />
     </ExpenseProvider>
   )
 }
