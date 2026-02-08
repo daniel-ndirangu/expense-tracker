@@ -91,134 +91,140 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
       />
 
       {/* Sheet */}
-      <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl p-6 animate-slide-up">
-        <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-6" />
+      <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl animate-slide-up max-h-[90vh] max-h-[90dvh] flex flex-col">
+        {/* Drag handle - fixed */}
+        <div className="flex-shrink-0 pt-3 pb-2">
+          <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto" />
+        </div>
 
-        <h2 className="text-xl font-semibold text-white mb-6">
-          {expense ? 'Edit Expense' : 'Add Expense'}
-        </h2>
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-6 pb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <h2 className="text-xl font-semibold text-white mb-6">
+            {expense ? 'Edit Expense' : 'Add Expense'}
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Amount */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-2">Amount</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">KSh</span>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {/* Amount */}
+            <div>
+              <label className="block text-gray-400 text-sm mb-2">Amount</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">KSh</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
+                  min="0"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full bg-[#2a2a2a] text-white text-lg font-medium rounded-xl py-4 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-white/20"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-gray-400 text-sm mb-2">Description</label>
               <input
-                type="number"
-                inputMode="decimal"
-                step="0.01"
-                min="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
-                className="w-full bg-[#2a2a2a] text-white text-lg font-medium rounded-xl py-4 pl-14 pr-4 focus:outline-none focus:ring-2 focus:ring-white/20"
-                autoFocus
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What was this for?"
+                className="w-full bg-[#2a2a2a] text-white rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-white/20"
               />
             </div>
-          </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-2">Description</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What was this for?"
-              className="w-full bg-[#2a2a2a] text-white rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-white/20"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-2">Category</label>
-            {isAddingCategory ? (
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="New category name"
-                  className="flex-1 bg-[#2a2a2a] text-white rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white/20"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleAddCategory()
-                    } else if (e.key === 'Escape') {
-                      handleCancelAddCategory()
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddCategory}
-                  disabled={!newCategoryName.trim()}
-                  className="px-4 py-3 bg-white text-black rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Add
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancelAddCategory}
-                  className="px-4 py-3 bg-[#2a2a2a] text-gray-300 rounded-xl"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <div className="relative">
-                <select
-                  value={category}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="w-full bg-[#2a2a2a] text-white rounded-xl py-4 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                  <option value={ADD_NEW_VALUE}>+ Add new category</option>
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+            {/* Category */}
+            <div>
+              <label className="block text-gray-400 text-sm mb-2">Category</label>
+              {isAddingCategory ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="New category name"
+                    className="flex-1 bg-[#2a2a2a] text-white rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-white/20"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleAddCategory()
+                      } else if (e.key === 'Escape') {
+                        handleCancelAddCategory()
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCategory}
+                    disabled={!newCategoryName.trim()}
+                    className="px-4 py-3 bg-white text-black rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelAddCategory}
+                    className="px-4 py-3 bg-[#2a2a2a] text-gray-300 rounded-xl"
+                  >
+                    Cancel
+                  </button>
                 </div>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="relative">
+                  <select
+                    value={category}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="w-full bg-[#2a2a2a] text-white rounded-xl py-4 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                    <option value={ADD_NEW_VALUE}>+ Add new category</option>
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Date */}
-          <div>
-            <label className="block text-gray-400 text-sm mb-2">Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-[#2a2a2a] text-white rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-white/20"
-            />
-          </div>
+            {/* Date */}
+            <div>
+              <label className="block text-gray-400 text-sm mb-2">Date</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full bg-[#2a2a2a] text-white rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-white/20"
+              />
+            </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-4 text-gray-300 font-medium rounded-xl bg-[#2a2a2a] hover:bg-[#3a3a3a] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!isValid}
-              className="flex-1 py-4 text-black font-medium rounded-xl bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {expense ? 'Save' : 'Add'}
-            </button>
-          </div>
-        </form>
+            {/* Actions */}
+            <div className="flex gap-3 pt-2 pb-safe">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-4 text-gray-300 font-medium rounded-xl bg-[#2a2a2a] active:bg-[#3a3a3a]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!isValid}
+                className="flex-1 py-4 text-black font-medium rounded-xl bg-white active:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {expense ? 'Save' : 'Add'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
       <style>{`
@@ -232,6 +238,9 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
         }
         .animate-slide-up {
           animation: slide-up 0.3s ease-out;
+        }
+        .pb-safe {
+          padding-bottom: env(safe-area-inset-bottom, 0);
         }
       `}</style>
     </div>
