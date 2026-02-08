@@ -22,6 +22,29 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      // Save current scroll position and lock
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.left = '0'
+      document.body.style.right = '0'
+      document.body.style.overflow = 'hidden'
+
+      return () => {
+        // Restore scroll position
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.left = ''
+        document.body.style.right = ''
+        document.body.style.overflow = ''
+        window.scrollTo(0, scrollY)
+      }
+    }
+  }, [isOpen])
+
   useEffect(() => {
     if (isOpen) {
       if (expense) {
@@ -76,6 +99,11 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
     })
   }
 
+  // Prevent touch events from propagating to background
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.stopPropagation()
+  }
+
   const isValid = amount && parseFloat(amount) > 0 && category
 
   if (!isOpen) {
@@ -83,7 +111,10 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
   }
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div
+      className="fixed inset-0 z-50 touch-none"
+      onTouchMove={handleTouchMove}
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60"
@@ -91,14 +122,20 @@ export default function ExpenseFormSheet({ isOpen, expense, onSave, onClose }: E
       />
 
       {/* Sheet */}
-      <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl animate-slide-up max-h-[90vh] max-h-[90dvh] flex flex-col">
+      <div
+        className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl animate-slide-up flex flex-col touch-auto"
+        style={{ maxHeight: '90dvh' }}
+      >
         {/* Drag handle - fixed */}
         <div className="flex-shrink-0 pt-3 pb-2">
           <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto" />
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto overscroll-contain px-6 pb-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 pb-6"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+        >
           <h2 className="text-xl font-semibold text-white mb-6">
             {expense ? 'Edit Expense' : 'Add Expense'}
           </h2>
